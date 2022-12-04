@@ -9,17 +9,17 @@ struct Rucksack {
 
 impl Rucksack {
     fn find_duplicate(&self) -> Option<u8> {
-        let first: HashSet<u8> = HashSet::from_iter(self.first.iter().cloned());
-        let second: HashSet<u8> = HashSet::from_iter(self.second.iter().cloned());
-        first.intersection(&second).next().cloned()
+        let first: HashSet<u8> = HashSet::from_iter(self.first.iter().copied());
+        let second: HashSet<u8> = HashSet::from_iter(self.second.iter().copied());
+        first.intersection(&second).next().copied()
     }
 
     fn all_items(&self) -> HashSet<u8> {
         return HashSet::from_iter(
             self.first
                 .iter()
-                .cloned()
-                .chain(self.second.iter().cloned()),
+                .copied()
+                .chain(self.second.iter().copied()),
         );
     }
 }
@@ -39,9 +39,9 @@ impl FromStr for Rucksack {
 
 fn priority(c: char) -> u8 {
     if c.is_lowercase() {
-        return (c as u32 as u8) - 96;
+        (c as u32 as u8) - 96
     } else {
-        return (c as u32 as u8) - 38;
+        (c as u32 as u8) - 38
     }
 }
 
@@ -57,23 +57,17 @@ fn duplicates_priority(rucksacks: &[Rucksack]) -> u32 {
 }
 
 fn find_badge<'a, G: Iterator<Item = &'a Rucksack>>(group: G) -> u32 {
-    group
+    *group
         .map(|rucksack| rucksack.all_items())
-        .reduce(|acc, item| HashSet::from_iter(acc.intersection(&item).cloned()))
+        .reduce(|acc, item| HashSet::from_iter(acc.intersection(&item).copied()))
         .unwrap()
         .iter()
         .next()
-        .unwrap()
-        .clone() as u32
+        .unwrap() as u32
 }
 
 fn groups_priority(rucksacks: &[Rucksack]) -> u32 {
-    rucksacks
-        .iter()
-        .chunks(3)
-        .into_iter()
-        .map(|group| find_badge(group))
-        .sum()
+    rucksacks.iter().chunks(3).into_iter().map(find_badge).sum()
 }
 
 pub fn main() {
